@@ -1,0 +1,222 @@
+#include"TPaveText.h"
+#include "TChain.h"
+#include "TH1F.h"
+#include <vector>
+#include <cmath>
+#include "TFile.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "TCanvas.h"
+#include "THStack.h"
+#include "TStyle.h"
+#include <stdio.h>
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TH1F.h"
+#include "THStack.h"
+#include "TProfile.h"
+#include "TH2D.h"
+#include "TF1.h"
+#include "TGraphErrors.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TStyle.h"
+#include "TLegend.h"
+#include "TPaveText.h"
+#include "TColor.h"
+#include "TLatex.h"
+
+using namespace std;
+  
+
+double lumi = 4860.;
+
+
+
+
+std::string get_sqrtText() {
+
+   char label_sqrt_text[150];
+  
+    sprintf( label_sqrt_text, "#sqrt{s} = 7 TeV");
+    std::string returnString(label_sqrt_text);
+
+  return returnString;
+
+}
+
+
+TPaveText* get_labelCMS( int legendQuadrant = 0 , std::string year="2011", bool sim=false, std::string run = "ALL") {
+
+  if( legendQuadrant!=0 && legendQuadrant!=1 && legendQuadrant!=2 && legendQuadrant!=3 ) {
+    std::cout << "WARNING! Legend quadrant '" << legendQuadrant << "' not yet implemented for CMS label. Using 2." << std::endl;
+    legendQuadrant = 2;
+  }
+
+  float x1, y1, x2, y2;
+  if( legendQuadrant==1 ) {
+    x1 = 0.63;
+    y1 = 0.83;
+    x2 = 0.8;
+    y2 = 0.87;
+  } else if( legendQuadrant==2 ) {
+    x1 =  0.25;
+    y1 = 0.83;
+    x2 =  0.42;
+    y2 = 0.87;
+  } else if( legendQuadrant==3 ) {
+    x1 = 0.25;
+    y1 = 0.2;
+    x2 = 0.42;
+    y2 = 0.24;
+  } else if( legendQuadrant==0 ) {
+    x1 = 0.175;
+    y1 = 0.953;
+    x2 = 0.6;
+    y2 = 0.975;
+  }
+
+  
+  TPaveText* cmslabel = new TPaveText( x1, y1, x2, y2, "brNDC" );
+  cmslabel->SetFillColor(kWhite);
+  cmslabel->SetTextSize(0.038);
+  if( legendQuadrant==0 ) cmslabel->SetTextAlign(11);
+  cmslabel->SetTextSize(0.038);
+  cmslabel->SetTextFont(42);
+ 
+    std::string leftText;
+   
+    if(year == "2017")  leftText = "CMS Simulation";
+    if (sim)  leftText = "CMS Simulation"; //cwr ->remove 2011
+    else {
+      if(year == "2011" && run == "RUN2011A")  leftText = "CMS Preliminary RUN2011A 2.034 fb^{-1}";
+      if(year == "2011" && run == "RUN2011B")  leftText = "CMS Preliminary 2011, 2.516 fb^{-1}";
+      if(year == "2011" && run == "ALL")  leftText = "CMS 4.9 fb^{-1}"; //cwr ->remove 2011
+      if(year == "none" && run == "ALL")  leftText = "CMS Data"; //cwr ->remove 2011
+      if(year == "May2011")leftText = "CMS Preliminary 2011, 858.4 pb^{-1}";
+
+    }
+    cmslabel->AddText(leftText.c_str());
+    return cmslabel;
+
+}
+
+
+
+
+TPaveText* get_labelSqrt( int legendQuadrant ) {
+
+  if( legendQuadrant!=0 && legendQuadrant!=1 && legendQuadrant!=2 && legendQuadrant!=3 ) {
+    std::cout << "WARNING! Legend quadrant '" << legendQuadrant << "' not yet implemented for Sqrt label. Using 2." << std::endl;
+    legendQuadrant = 2;
+  }
+
+
+  float x1, y1, x2, y2;
+  if( legendQuadrant==1 ) {
+    x1 = 0.63;
+    y1 = 0.78;
+    x2 = 0.8;
+    y2 = 0.82;
+  } else if( legendQuadrant==2 ) {
+    x1 = 0.25;
+    y1 = 0.78;
+    x2 = 0.42;
+    y2 = 0.82;
+  } else if( legendQuadrant==3 ) {
+    x1 = 0.25;
+    y1 = 0.16;
+    x2 = 0.42;
+    y2 = 0.2;
+  } else if( legendQuadrant==0 ) {
+    x1 = 0.65;
+    y1 = 0.953;
+    x2 = 0.87;
+    y2 = 0.975;
+  }
+
+
+  TPaveText* label_sqrt = new TPaveText(x1,y1,x2,y2, "brNDC");
+  label_sqrt->SetFillColor(kWhite);
+  label_sqrt->SetTextSize(0.038);
+  label_sqrt->SetTextFont(42);
+  label_sqrt->SetTextAlign(31); // align right
+  label_sqrt->AddText("#sqrt{s} = 7 TeV");
+  return label_sqrt;
+
+}
+
+
+
+
+void makePlot(){
+
+
+
+  TFile* file;
+  file = new TFile("output.root", "READ");
+  TTree* tree = (TTree*) file->Get("demo/tree");
+  TH1F* h1_neutCTau=new TH1F("h1_neutCTau", "", 200, 0, 2000);
+  TH1F* h1_phoTimeGen=new TH1F("h1_phoTimeGen", "", 120, -2,10);
+  TH1F* h1_phoTimeRes=new TH1F("h1_phoTimeRes", "", 120, -2, 10);
+  tree->Draw("neutCTau>>h1_neutCTau");
+  tree->Draw("phoTime>>h1_phoTimeGen");
+ 
+  for ( Int_t i=0; i<h1_phoTimeGen->GetEntries(); i++) 
+    {
+      float   x = gRandom->Gaus(0.,0.3);//res 300ps = 3e-10s = 0.3 ns
+      std::cout<<x<<std::endl;
+      h1_phoTimeRes->Fill(x);
+    }
+  //------fix legend-----//
+  TLegend* legend1;
+  legend1 = new TLegend(0.5, 0.4, 0.89, 0.89);
+  legend1->SetFillColor(kWhite);
+  legend1->SetTextFont(42);
+ 
+  TPaveText* label_cms = get_labelCMS(0,"2017", 1, "ALL");
+  TPaveText* label_sqrt = get_labelSqrt(0);
+  
+  TCanvas *c_ratio = new TCanvas("c_ratio","",700,800);
+  c_ratio->cd();
+  c_ratio->SetLogy();
+  h1_phoTimeGen->Draw("hist");
+  c_ratio->SaveAs("~/www/DisplacedPhotons/neutCTau200cm_phoTime.png");
+  h1_phoTimeRes->Draw("hist");
+  h1_phoTimeRes->GetXaxis()->SetTitle("Time [ns]");
+  c_ratio->SaveAs("~/www/DisplacedPhotons/neutCTau200cm_phoTimeRes.png");
+
+
+  //CONVOLUTION
+  RooRealVar time("time","time", 0, 10);
+  RooDataHist* RDHh2 = new RooDataHist("RDHh2", " ", time, h1_phoTimeGen);
+  RooDataHist* RDHaccPulse = new RooDataHist("RDHaccPulse", " ", time, h1_phoTimeRes);
+  RooHistPdf* pdfh2 = new RooHistPdf("pdfh2", "pdfh2", time, *RDHh2, 2);
+  RooHistPdf* pdfaccPulse = new RooHistPdf("pdfaccPulse", "pdfaccPulse", time, *RDHaccPulse, 2);
+  RooNumConvPdf expTOF("ExpTOF", "ExpTOF", time, *pdfh2, *pdfaccPulse);
+  RooPlot* frame = time.frame();
+  expTOF.plotOn(frame,RooFit::LineColor(kRed),RooFit::LineStyle(kDashed));
+  h1_phoTimeGen->Draw();
+  frame->Draw("same");
+
+  c_ratio->SaveAs("~/www/DisplacedPhotons/neutCTau200cm_phoTimeConv.png");
+
+
+
+
+
+
+
+
+
+
+  TFormula form("texp","[0]*exp(-x/[1])");
+  TF1 * fit = new TF1("texp_fit",form.GetName(),0.f,2000.f);
+  fit->SetParName(0,"Norm"); fit->SetParameter(0,h1_neutCTau->GetMaximum());
+  fit->SetParName(1,"d");    fit->SetParameter(1,h1_neutCTau->GetMean());
+  h1_neutCTau->Fit(fit->GetName());
+  h1_neutCTau->Draw("hist");
+  fit->Draw("same");
+  c_ratio->SaveAs("~/www/DisplacedPhotons/neutCTau200cm.png");
+  
+}

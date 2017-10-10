@@ -1,0 +1,8 @@
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<Flags CXXFLAGS="-ggdb"/>
+<export>
+  <lib   name="1"/>
+</export>
