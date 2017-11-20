@@ -1,0 +1,119 @@
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+
+import FWCore.ParameterSet.Config as cms
+
+# Common functions and classes for ID definition are imported here:
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
+    import ( EleWorkingPoint_Test_NewVars,
+             EleWorkingPoint_V3,
+             IsolationCutInputs_V2,
+             configureVIDCutBasedEleID_V3,
+             configureVIDCutBasedEleID_Test_NewVars)
+print "after import"
+#
+# First, define cut values
+#
+
+# Test working point Barrel and Endcap
+idName = "cutBasedElectronID-VID-Tutorial-2017-Test"
+WP_Test_EB = EleWorkingPoint_V3(
+    idName                         = idName  , # idName
+    full5x5_sigmaIEtaIEtaCut       = 0.0110  , # full5x5_sigmaIEtaIEtaCut
+    dEtaInSeedCut                  = 0.00477 , # dEtaInSeedCut
+    dPhiInCut                      = 0.222   , # dPhiInCut
+    hOverECut                      = 0.298   , # hOverECut
+    relCombIsolationWithEALowPtCut = 0.0994  , # relCombIsolationWithEALowPtCut
+    relCombIsolationWithEAHighPtCut= 0.0994  , # relCombIsolationWithEAHighPtCut
+    absEInverseMinusPInverseCut    = 0.241   , # absEInverseMinusPInverseCut
+    # conversion veto cut needs no parameters, so not mentioned
+    missingHitsCut                 = 1          # missingHitsCut
+    )
+
+WP_Test_EE = EleWorkingPoint_V3(
+    idName                         = idName  , # idName
+    full5x5_sigmaIEtaIEtaCut       = 0.0314  , # full5x5_sigmaIEtaIEtaCut
+    dEtaInSeedCut                  = 0.00868 , # dEtaInSeedCut
+    dPhiInCut                      = 0.213   , # dPhiInCut
+    hOverECut                      = 0.101   , # hOverECut
+    relCombIsolationWithEALowPtCut = 0.107   , # relCombIsolationWithEALowPtCut
+    relCombIsolationWithEAHighPtCut= 0.107   , # relCombIsolationWithEAHighPtCut
+    absEInverseMinusPInverseCut    = 0.140   , # absEInverseMinusPInverseCut
+    # conversion veto cut needs no parameters, so not mentioned
+    missingHitsCut                 = 1         # missingHitsCut
+    )
+
+
+# Test working point Barrel and Endcap with new variables
+idName = "cutBasedElectronID-VID-Tutorial-2017-Test-NewVars"
+WP_Test_NewVars_EB = EleWorkingPoint_Test_NewVars(
+    idName                         = idName  , # idName
+    full5x5_sigmaIEtaIEtaCut       = 0.0110  , # full5x5_sigmaIEtaIEtaCut
+    dEtaInSeedCut                  = 0.00477 , # dEtaInSeedCut
+    dPhiInCut                      = 0.222   , # dPhiInCut
+    hOverECut                      = 0.298   , # hOverECut
+    relCombIsolationWithEALowPtCut = 0.0994  , # relCombIsolationWithEALowPtCut
+    relCombIsolationWithEAHighPtCut= 0.0994  , # relCombIsolationWithEAHighPtCut
+    absEInverseMinusPInverseCut    = 0.241   , # absEInverseMinusPInverseCut
+    # conversion veto cut needs no parameters, so not mentioned
+    missingHitsCut                 = 1       ,   # missingHitsCut
+    minE1x5OverE5x5Cut                = 0.8     ,
+    minE2x5OverE5x5Cut                = 0.8 
+    )
+
+WP_Test_NewVars_EE = EleWorkingPoint_Test_NewVars(
+    idName                         = idName  , # idName
+    full5x5_sigmaIEtaIEtaCut       = 0.0314  , # full5x5_sigmaIEtaIEtaCut
+    dEtaInSeedCut                  = 0.00868 , # dEtaInSeedCut
+    dPhiInCut                      = 0.213   , # dPhiInCut
+    hOverECut                      = 0.101   , # hOverECut
+    relCombIsolationWithEALowPtCut = 0.107   , # relCombIsolationWithEALowPtCut
+    relCombIsolationWithEAHighPtCut= 0.107   , # relCombIsolationWithEAHighPtCut
+    absEInverseMinusPInverseCut    = 0.140   , # absEInverseMinusPInverseCut
+    # conversion veto cut needs no parameters, so not mentioned
+    missingHitsCut                 = 1       , # missingHitsCut
+    minE1x5OverE5x5Cut                = 0.8     ,
+    minE2x5OverE5x5Cut                = 0.8 
+
+    )
+
+
+
+
+# Second, define what effective areas to use for pile-up correction
+isoInputs = IsolationCutInputs_V2(
+    # phoIsolationEffAreas
+    "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"
+)
+
+
+#
+# Set up VID configuration for all cuts and working points
+#
+
+
+cutBasedElectronID_VID_Tutorial_2017_Test = configureVIDCutBasedEleID_V3(WP_Test_EB, WP_Test_EE, isoInputs)
+cutBasedElectronID_VID_Tutorial_2017_Test_NewVars = configureVIDCutBasedEleID_Test_NewVars(WP_Test_NewVars_EB, WP_Test_NewVars_EE, isoInputs)
+
+
+
+# The MD5 sum numbers below reflect the exact set of cut variables
+# and values above. If anything changes, one has to 
+# 1) comment out the lines below about the registry, 
+# 2) run "calculateMD5 <this file name> <one of the VID config names just above>
+# 3) update the MD5 sum strings below and uncomment the lines again.
+#
+
+#central_id_registry.register(cutBasedElectronID_Summer16_80X_V1_veto.idName,
+#                             '0025c1841da1ab64a08d703ded72409b')
+#central_id_registry.register(cutBasedElectronID_Summer16_80X_V1_loose.idName,
+#                             'c1c4c739f1ba0791d40168c123183475')
+#central_id_registry.register(cutBasedElectronID_Summer16_80X_V1_medium.idName,
+#                             '71b43f74a27d2fd3d27416afd22e8692')
+#central_id_registry.register(cutBasedElectronID_Summer16_80X_V1_tight.idName,
+#                             'ca2a9db2976d80ba2c13f9bfccdc32f2')
+
+
+### for now until we have a database...
+cutBasedElectronID_VID_Tutorial_2017_Test.isPOGApproved = cms.untracked.bool(False)
+cutBasedElectronID_VID_Tutorial_2017_Test_NewVars.isPOGApproved = cms.untracked.bool(False)
+
